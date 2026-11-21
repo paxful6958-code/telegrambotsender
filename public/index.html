@@ -1,302 +1,901 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCash</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html,
-        body {
-            min-height: 100vh;
-            font-family: 'Inter', sans-serif;
-            background: #f0f2f5;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: clamp(10px, 2vw, 20px);
-        }
-        
-        header {
-            width: 100%;
-            max-width: 480px;
-            padding: clamp(10px, 3vw, 15px) clamp(15px, 4vw, 20px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: clamp(5px, 2vw, 10px);
-        }
-        
-        .menu-btn {
-            font-size: clamp(24px, 6vw, 28px);
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #333;
-        }
-        
-        .logo {
-            font-size: clamp(24px, 6vw, 28px);
-            font-weight: 700;
-        }
-        
-        .logo-eco {
-            color: #0066ff;
-        }
-        
-        .logo-cash {
-            color: #ff0000;
-        }
-        
-        .card {
-            background: white;
-            border-radius: clamp(16px, 5vw, 24px);
-            padding: clamp(24px, 6vw, 32px) clamp(20px, 5vw, 28px);
-            width: 100%;
-            max-width: 480px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
-        @media (min-width: 769px) {
-            body {
-                padding: clamp(15px, 3vw, 20px);
-                justify-content: center;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telegram Bulk Bot Broadcaster</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS (xlsx) CDN for parsing Excel (.xlsx, .xls) and CSV files in browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Font Awesome for clean UI icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            telegram: {
+              50: '#eef8ff',
+              100: '#d9eeff',
+              500: '#24A1DE',
+              600: '#1c88bd',
+              700: '#166e99',
             }
-            .card {
-                padding: clamp(30px, 5vw, 40px) clamp(25px, 4vw, 30px);
-            }
+          }
         }
-        
-        .title {
-            font-size: clamp(22px, 5vw, 26px);
-            font-weight: 700;
-            color: #333;
-            margin-bottom: clamp(4px, 1.5vw, 6px);
-        }
-        
-        .subtitle {
-            font-size: clamp(13px, 3.5vw, 15px);
-            color: #777;
-            margin-bottom: clamp(18px, 5vw, 24px);
-        }
-        
-        .calc-section {
-            background: #f8f9ff;
-            border-radius: clamp(15px, 4vw, 20px);
-            padding: clamp(18px, 5vw, 24px);
-            margin-bottom: clamp(18px, 5vw, 24px);
-            text-align: left;
-        }
-        
-        .calc-title {
-            font-size: clamp(16px, 4vw, 19px);
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: clamp(18px, 5vw, 24px);
-            color: #333;
-        }
-        
-        .input-group {
-            margin-bottom: clamp(24px, 7vw, 32px);
-        }
-        
-        .input-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: clamp(8px, 2vw, 10px);
-            font-weight: 600;
-            font-size: clamp(13px, 3.5vw, 15px);
-        }
-        
-        .input-label {
-            color: #333;
-        }
-        
-        .input-value {
-            color: #4361ee;
-            font-weight: 700;
-        }
-        
-        .slider {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: #e0e0e0;
-            outline: none;
-        }
-        
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: clamp(24px, 6vw, 28px);
-            height: clamp(24px, 6vw, 28px);
-            border-radius: 50%;
-            background: #4361ee;
-            cursor: pointer;
-        }
-        
-        .range-labels {
-            display: flex;
-            justify-content: space-between;
-            color: #999;
-            font-size: clamp(12px, 3vw, 14px);
-            margin-top: clamp(6px, 2vw, 8px);
-        }
-        
-        .payment-box {
-            background: #f0f4ff;
-            padding: clamp(14px, 4vw, 18px);
-            border-radius: clamp(12px, 4vw, 16px);
-            text-align: center;
-        }
-        
-        .payment-label {
-            display: block;
-            color: #666;
-            margin-bottom: clamp(6px, 2vw, 8px);
-            font-size: clamp(12px, 3vw, 14px);
-        }
-        
-        .payment-amount {
-            font-size: clamp(26px, 7vw, 30px);
-            font-weight: 700;
-            color: #4361ee;
-        }
-        
-        .apply-btn {
-            width: 100%;
-            padding: clamp(12px, 4vw, 16px);
-            background: linear-gradient(to right, #4361ee, #7209b7);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: clamp(16px, 4vw, 18px);
-            font-weight: 700;
-            cursor: pointer;
-            margin-bottom: clamp(18px, 5vw, 24px);
-        }
-        
-        .features {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: clamp(10px, 3vw, 20px);
-        }
-        
-        .feature {
-            text-align: center;
-            color: #777;
-            font-size: clamp(11px, 3vw, 13px);
-            flex: 1 0 100px;
-        }
-        
-        .feature-icon {
-            font-size: clamp(32px, 8vw, 36px);
-            margin-bottom: clamp(6px, 2vw, 8px);
-        }
-        
-        footer {
-            padding: clamp(10px, 3vw, 15px);
-            color: #aaa;
-            font-size: clamp(11px, 3vw, 13px);
-            text-align: center;
-            flex-shrink: 0;
-        }
-    </style>
+      }
+    };
+  </script>
 </head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans min-h-screen transition-colors duration-200 antialiased">
 
-<body>
-    <header>
-        <button class="menu-btn">☰</button>
-        <div class="logo"><span class="logo-eco">Eco</span><span class="logo-cash">Cash</span></div>
-        <div></div>
-    </header>
-    <main class="card">
+  <!-- Toast Notification Banner (Replaces alert()) -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-telegram-500 flex items-center justify-center text-white shadow-lg shadow-telegram-500/25">
+          <i class="fa-brands fa-telegram text-2xl"></i>
+        </div>
         <div>
-            <h1 class="title">Get Your Loan Approved Fast</h1>
-            <p class="subtitle">Quick approval • Competitive rates • Flexible terms</p>
-            <div class="calc-section">
-                <h2 class="calc-title">Loan Calculator</h2>
-                <div class="input-group">
-                    <div class="input-header">
-                        <span class="input-label">Loan Amount</span>
-                        <span class="input-value" id="amountValue">$5,000</span>
-                    </div>
-                    <input type="range" class="slider" min="100" max="5000" value="5000" id="amountSlider">
-                    <div class="range-labels"><span>$100</span><span>$5,000</span></div>
+          <h1 class="text-lg font-bold tracking-tight leading-none">Telegram Broadcaster</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Multi-Bot Text &amp; Photo Dispatcher</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span id="header-target-badge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-telegram-500/10 text-telegram-600 dark:text-telegram-500 border border-telegram-500/20">
+          <span class="w-2 h-2 rounded-full bg-telegram-500 animate-pulse"></span>
+          <span id="badge-count">15</span> Bots Loaded
+        </span>
+
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" type="button" aria-label="Toggle Theme" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+          <i id="theme-icon" class="fa-solid fa-sun text-base"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT COLUMN: Message / Photo Composer & Broadcast Settings (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
+
+        <!-- Composer Card -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold flex items-center gap-2">
+              <i class="fa-solid fa-paper-plane text-telegram-500"></i>
+              1. Compose Payload
+            </h2>
+            <!-- Parse Mode Selector -->
+            <select id="parse-mode" class="text-xs rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 font-medium focus:outline-none focus:ring-2 focus:ring-telegram-500">
+              <option value="">Plain Text</option>
+              <option value="HTML" selected>HTML Formatting</option>
+              <option value="MarkdownV2">MarkdownV2</option>
+            </select>
+          </div>
+
+          <!-- Mode Tabs: Text Message vs Photo + Caption -->
+          <div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 mb-5">
+            <button type="button" id="tab-text" onclick="switchMode('text')" class="py-2 px-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 bg-white dark:bg-slate-900 text-telegram-600 dark:text-telegram-500 shadow-sm transition">
+              <i class="fa-solid fa-align-left"></i> Text Message
+            </button>
+            <button type="button" id="tab-photo" onclick="switchMode('photo')" class="py-2 px-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+              <i class="fa-solid fa-image"></i> Image + Caption
+            </button>
+          </div>
+
+          <!-- Photo Upload Zone (Hidden in Text Mode) -->
+          <div id="photo-section" class="hidden mb-4">
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+              Select Photo to Send (JPG, PNG, WEBP, GIF)
+            </label>
+            <div id="photo-dropzone" class="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-telegram-500 dark:hover:border-telegram-500 rounded-xl p-4 text-center cursor-pointer transition bg-slate-50/50 dark:bg-slate-800/30">
+              <input type="file" id="photo-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+              <div id="photo-placeholder" class="py-3">
+                <i class="fa-solid fa-cloud-arrow-up text-2xl text-telegram-500 mb-2"></i>
+                <p class="text-sm font-medium">Click or drag an image here</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sent via Telegram <code class="font-mono">sendPhoto</code> API</p>
+              </div>
+              <div id="photo-preview-wrapper" class="hidden flex flex-col items-center">
+                <img id="photo-preview" src="" alt="Selected Preview" class="max-h-44 rounded-lg object-contain shadow-sm mb-2" />
+                <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                  <span id="photo-filename" class="font-mono truncate max-w-[200px]"></span>
+                  <button type="button" id="clear-photo-btn" class="text-rose-500 hover:text-rose-600 font-medium px-2 py-0.5 rounded bg-rose-500/10">
+                    Remove
+                  </button>
                 </div>
-                <div class="input-group">
-                    <div class="input-header">
-                        <span class="input-label">Loan Term</span>
-                        <span class="input-value" id="termValue">12 months</span>
-                    </div>
-                    <input type="range" class="slider" min="6" max="60" step="6" value="12" id="termSlider">
-                    <div class="range-labels"><span>6 months</span><span>60 months</span></div>
-                </div>
-                <div class="payment-box">
-                    <span class="payment-label">Monthly Payment</span>
-                    <span class="payment-amount" id="paymentAmount">$450.00</span>
-                </div>
+              </div>
             </div>
-            <button class="apply-btn" id="applyBtn">APPLY NOW</button>
-        </div>
-        <div class="features">
-            <div class="feature">
-                <div class="feature-icon">⚡</div>Fast Approval<br>Within 24 hours</div>
-            <div class="feature">
-                <div class="feature-icon">💰</div>Low Rates<br>From 8%</div>
-            <div class="feature">
-                <div class="feature-icon">🔒</div>Secure<br>Bank-level</div>
-        </div>
-    </main>
-    <footer>© 2025 EcoCash</footer>
-    <script>
-        const amountSlider = document.getElementById('amountSlider');
-        const termSlider = document.getElementById('termSlider');
-        const amountValue = document.getElementById('amountValue');
-        const termValue = document.getElementById('termValue');
-        const paymentAmount = document.getElementById('paymentAmount');
+          </div>
 
-        function updateCalculator() {
-            const amount = parseFloat(amountSlider.value);
-            const months = parseFloat(termSlider.value);
-            amountValue.textContent = '$' + amount.toLocaleString();
-            termValue.textContent = months + (months === 1 ? ' month' : ' months');
-            const annualRate = 0.08;
-            const monthlyRate = annualRate / 12;
-            if (months === 0) {
-                paymentAmount.textContent = '$' + amount.toFixed(2);
-            } else {
-                const power = Math.pow(1 + monthlyRate, months);
-                const monthlyPayment = amount * (monthlyRate * power) / (power - 1);
-                paymentAmount.textContent = '$' + monthlyPayment.toFixed(2);
-            }
+          <!-- Text / Caption Textarea -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <label id="message-label" for="message-text" class="text-xs font-medium text-slate-600 dark:text-slate-400">
+                Message Content
+              </label>
+              <span id="char-counter" class="text-xs font-mono text-slate-400">0 / 4096</span>
+            </div>
+            <textarea id="message-text" rows="5" placeholder="Enter your Telegram message here... Supports HTML tags like <b>bold</b>, <i>italic</i>, <a href='...'>links</a>." class="w-full rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-telegram-500 transition resize-y"></textarea>
+          </div>
+
+          <!-- Rate Limiting & Options -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/70">
+              <label for="delay-ms" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                Delay Between Bots (ms)
+              </label>
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-clock text-slate-400 text-xs"></i>
+                <input type="number" id="delay-ms" value="300" min="0" max="60000" step="100" class="w-full bg-transparent text-sm font-mono font-semibold focus:outline-none" />
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/70 flex flex-col justify-center">
+              <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                <input type="checkbox" id="dedupe-toggle" class="w-4 h-4 rounded text-telegram-500 focus:ring-telegram-500 bg-slate-200 dark:bg-slate-700 border-slate-300 dark:border-slate-600" />
+                <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Skip Duplicate Pairs</span>
+              </label>
+              <span class="text-[11px] text-slate-400 mt-1 pl-6">Rows 1 &amp; 6, 3 &amp; 13, 5 &amp; 11 match</span>
+            </div>
+          </div>
+
+          <!-- Primary Broadcast Action Buttons -->
+          <div class="flex items-center gap-3">
+            <button type="button" id="start-btn" class="flex-1 py-3 px-4 rounded-xl bg-telegram-500 hover:bg-telegram-600 active:scale-[0.99] text-white font-semibold text-sm shadow-lg shadow-telegram-500/25 flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-rocket"></i>
+              <span id="start-btn-text">Send Broadcast</span>
+            </button>
+
+            <button type="button" id="stop-btn" disabled class="py-3 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-semibold text-sm flex items-center justify-center gap-2 transition disabled:opacity-40 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-stop"></i>
+              Stop
+            </button>
+          </div>
+        </section>
+
+        <!-- Progress & Real-Time Delivery Log Card -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6 flex-1 flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-semibold flex items-center gap-2">
+              <i class="fa-solid fa-terminal text-emerald-500"></i>
+              3. Delivery Log
+            </h2>
+            <button type="button" id="clear-log-btn" class="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition">
+              Clear Log
+            </button>
+          </div>
+
+          <!-- Stats Summary Bar -->
+          <div class="grid grid-cols-3 gap-2 mb-3 text-center">
+            <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">Total</div>
+              <div id="stat-total" class="text-sm font-bold font-mono">15</div>
+            </div>
+            <div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+              <div class="text-[11px] text-emerald-600 dark:text-emerald-400">Sent</div>
+              <div id="stat-success" class="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">0</div>
+            </div>
+            <div class="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
+              <div class="text-[11px] text-rose-600 dark:text-rose-400">Failed</div>
+              <div id="stat-failed" class="text-sm font-bold font-mono text-rose-600 dark:text-rose-400">0</div>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mb-3">
+            <div id="progress-bar" class="h-full bg-telegram-500 transition-all duration-300 w-0"></div>
+          </div>
+
+          <!-- Terminal Output Area -->
+          <div id="log-output" class="flex-1 min-h-[190px] max-h-[280px] overflow-y-auto rounded-xl bg-slate-950 text-slate-200 p-3 font-mono text-xs space-y-1.5 border border-slate-800">
+            <div class="text-slate-500">[System] Ready. 15 bot targets loaded from spreadsheet preset.</div>
+          </div>
+        </section>
+      </div>
+
+      <!-- RIGHT COLUMN: Excel / CSV Importer & Recipient Table (7 cols) -->
+      <div class="lg:col-span-7 flex flex-col gap-6">
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6 flex-1 flex flex-col">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+              <h2 class="text-base font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-file-excel text-emerald-500"></i>
+                2. Bot Tokens &amp; Chat IDs (Excel / CSV)
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Column A: <code class="font-mono text-telegram-600 dark:text-telegram-500">Bot Token</code> &bull; Column B: <code class="font-mono text-telegram-600 dark:text-telegram-500">Chat ID</code>
+              </p>
+            </div>
+
+            <!-- Action Toolbar -->
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition">
+                <i class="fa-solid fa-upload"></i>
+                <span>Upload Excel/CSV</span>
+                <input type="file" id="excel-input" accept=".xlsx,.xls,.csv" class="hidden" />
+              </label>
+
+              <button type="button" id="download-sample-btn" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium transition" title="Export current table as .xlsx">
+                <i class="fa-solid fa-download"></i>
+                <span>Export .xlsx</span>
+              </button>
+
+              <button type="button" id="reset-preset-btn" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium transition" title="Restore the 15 rows from your spreadsheet">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>Restore Preset</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Manual Quick-Add Row Bar -->
+          <form id="manual-add-form" class="grid grid-cols-1 sm:grid-cols-12 gap-2 mb-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/70">
+            <input type="text" id="new-token" placeholder="Bot Token (e.g. 8806955345:AAHui8Og...)" class="sm:col-span-6 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-telegram-500" />
+            <input type="text" id="new-chatid" placeholder="Chat ID (e.g. 8981269163)" class="sm:col-span-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-telegram-500" />
+            <button type="submit" class="sm:col-span-2 rounded-lg bg-telegram-500 hover:bg-telegram-600 text-white text-xs font-semibold py-2 px-3 flex items-center justify-center gap-1 transition">
+              <i class="fa-solid fa-plus"></i> Add
+            </button>
+          </form>
+
+          <!-- Filter & Bulk Clear Bar -->
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="relative flex-1 max-w-xs">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" id="search-input" placeholder="Filter token or chat ID..." class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-telegram-500" />
+            </div>
+            <button type="button" id="clear-all-btn" class="text-xs text-rose-500 hover:text-rose-600 font-medium px-2.5 py-1.5 rounded-lg hover:bg-rose-500/10 transition">
+              Clear All Rows
+            </button>
+          </div>
+
+          <!-- Responsive Data Table -->
+          <div class="flex-1 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-100/80 dark:bg-slate-800/80 text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                  <th class="py-2.5 px-3 w-10 text-center">#</th>
+                  <th class="py-2.5 px-3">Col A: Bot Token</th>
+                  <th class="py-2.5 px-3">Col B: Chat ID</th>
+                  <th class="py-2.5 px-3 w-24 text-center">Status</th>
+                  <th class="py-2.5 px-3 w-12 text-center">Del</th>
+                </tr>
+              </thead>
+              <tbody id="targets-tbody" class="divide-y divide-slate-200/70 dark:divide-slate-800 text-xs font-mono">
+                <!-- Populated dynamically via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    /**
+     * Exact 15 rows extracted from the user's uploaded spreadsheet screenshot:
+     * Column A = Bot Token | Column B = Chat ID
+     */
+    const DEFAULT_PRESET_TARGETS = [
+      { token: "8806955345:AAHui8Og-HZrlgADERJJnvuzfAbdXQ4RXVU", chatId: "8981269163" },
+      { token: "7996666362:AAFVzLC1LD14nkmJN8MN98SRdOu2hlA1ftc", chatId: "8406078749" },
+      { token: "8991171203:AAGYW8NUgRC3WhqB_BrdYNHIY3FLqJ-Zros", chatId: "7207168700" },
+      { token: "8648235984:AAGmZDRJ2KGorxv0f5LVuEQ2nc9KYHsJU5k", chatId: "7168753035" },
+      { token: "8625456655:AAFLbUZwcvWmnaqoUf3B5wceScW1JCk2DPQ", chatId: "7210376596" },
+      { token: "8806955345:AAHui8Og-HZrlgADERJJnvuzfAbdXQ4RXVU", chatId: "8981269163" },
+      { token: "8951840150:AAGOWZW7Mb4rgu37LCuN2oERxBq2TC0nFvc", chatId: "8499854102" },
+      { token: "8604410932:AAEJVIsmxXoW74fEXoiyAwx23yZwHGcOsvk", chatId: "6953024102" },
+      { token: "8835727901:AAFXeOq-RvJrjW74oT9Kn7kXPcVUANXfAAg", chatId: "8699424880" },
+      { token: "8895467826:AAEJ38Ff6Z4tSjYsSWeMfLQq7OGD4DpX9Mg", chatId: "7724054545" },
+      { token: "8625456655:AAFLbUZwcvWmnaqoUf3B5wceScW1JCk2DPQ", chatId: "7210376596" },
+      { token: "8704853561:AAHjVXtaOnOEkt8o6FlPQWXIPXCgKM6Nx0Y", chatId: "8213928177" },
+      { token: "8991171203:AAGYW8NUgRC3WhqB_BrdYNHIY3FLqJ-Zros", chatId: "7207168700" },
+      { token: "8898435599:AAHXbZDvM58xlbwrf4dVG_xlN0UKHt7v-p4", chatId: "8939378486" },
+      { token: "8804812021:AAGhN2YVUJHibFOM-Ip8eR4iDtiNHVBHrMs", chatId: "8752862997" }
+    ];
+
+    // Application State
+    let targets = [];
+    let currentMode = 'text'; // 'text' | 'photo'
+    let selectedPhotoFile = null;
+    let isBroadcasting = false;
+    let abortRequested = false;
+
+    // DOM Element References
+    const tbody = document.getElementById('targets-tbody');
+    const searchInput = document.getElementById('search-input');
+    const messageText = document.getElementById('message-text');
+    const charCounter = document.getElementById('char-counter');
+    const photoInput = document.getElementById('photo-input');
+    const photoPreview = document.getElementById('photo-preview');
+    const photoPreviewWrapper = document.getElementById('photo-preview-wrapper');
+    const photoPlaceholder = document.getElementById('photo-placeholder');
+    const photoFilename = document.getElementById('photo-filename');
+    const logOutput = document.getElementById('log-output');
+    const progressBar = document.getElementById('progress-bar');
+
+    // Initialize Application on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPresetTargets();
+      setupEventListeners();
+    });
+
+    /**
+     * Loads the 15 default targets from the user's spreadsheet into state
+     */
+    function loadPresetTargets() {
+      targets = DEFAULT_PRESET_TARGETS.map((item, idx) => ({
+        id: crypto.randomUUID ? crypto.randomUUID() : `row-${Date.now()}-${idx}`,
+        token: item.token.trim(),
+        chatId: String(item.chatId).trim(),
+        status: 'pending', // 'pending' | 'sending' | 'sent' | 'error' | 'skipped'
+        errorMsg: ''
+      }));
+      renderTable();
+      updateCounters();
+    }
+
+    /**
+     * Attaches all UI event listeners
+     */
+    function setupEventListeners() {
+      // Dark/Light Theme Toggle
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        const htmlEl = document.documentElement;
+        const iconEl = document.getElementById('theme-icon');
+        htmlEl.classList.toggle('dark');
+        if (htmlEl.classList.contains('dark')) {
+          iconEl.classList.replace('fa-moon', 'fa-sun');
+        } else {
+          iconEl.classList.replace('fa-sun', 'fa-moon');
         }
-        updateCalculator();
-        amountSlider.addEventListener('input', updateCalculator);
-        termSlider.addEventListener('input', updateCalculator);
-        document.getElementById('applyBtn').addEventListener('click', function() {
-            localStorage.setItem('loanAmount', amountSlider.value);
-            localStorage.setItem('loanTerm', termSlider.value);
-            window.location.href = 'application.html';
-        });
-    </script>
-</body>
+      });
 
+      // Character Counter
+      messageText.addEventListener('input', updateCharCounter);
+
+      // Photo Selection & Removal
+      photoInput.addEventListener('change', handlePhotoSelect);
+      document.getElementById('clear-photo-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        clearPhotoSelection();
+      });
+
+      // Excel / CSV Upload Handler
+      document.getElementById('excel-input').addEventListener('change', handleExcelUpload);
+
+      // Export to Excel (.xlsx)
+      document.getElementById('download-sample-btn').addEventListener('click', exportTargetsToExcel);
+
+      // Restore Preset Button
+      document.getElementById('reset-preset-btn').addEventListener('click', () => {
+        if (isBroadcasting) return showToast('Stop the active broadcast before resetting.', 'warning');
+        loadPresetTargets();
+        appendLog('Restored 15 default bot rows from spreadsheet preset.', 'info');
+        showToast('Restored 15 preset rows.', 'success');
+      });
+
+      // Clear All Rows
+      document.getElementById('clear-all-btn').addEventListener('click', () => {
+        if (isBroadcasting) return showToast('Stop the active broadcast first.', 'warning');
+        targets = [];
+        renderTable();
+        updateCounters();
+        appendLog('Cleared all recipient rows.', 'warn');
+      });
+
+      // Manual Add Row Form
+      document.getElementById('manual-add-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const tokenInput = document.getElementById('new-token');
+        const chatIdInput = document.getElementById('new-chatid');
+        const token = tokenInput.value.trim();
+        const chatId = chatIdInput.value.trim();
+
+        if (!token || !chatId) {
+          return showToast('Please enter both a Bot Token and a Chat ID.', 'error');
+        }
+
+        targets.push({
+          id: `row-${Date.now()}`,
+          token,
+          chatId,
+          status: 'pending',
+          errorMsg: ''
+        });
+        tokenInput.value = '';
+        chatIdInput.value = '';
+        renderTable();
+        updateCounters();
+        showToast('Added new bot target row.', 'success');
+      });
+
+      // Table Search Filter
+      searchInput.addEventListener('input', renderTable);
+
+      // Start & Stop Broadcast Buttons
+      document.getElementById('start-btn').addEventListener('click', startBroadcast);
+      document.getElementById('stop-btn').addEventListener('click', () => {
+        abortRequested = true;
+        appendLog('Abort requested by user. Stopping after current request...', 'warn');
+      });
+
+      // Clear Terminal Log
+      document.getElementById('clear-log-btn').addEventListener('click', () => {
+        logOutput.innerHTML = '<div class="text-slate-500">[System] Log cleared.</div>';
+      });
+    }
+
+    /**
+     * Switches between 'text' (sendMessage) and 'photo' (sendPhoto) mode
+     */
+    function switchMode(mode) {
+      currentMode = mode;
+      const tabText = document.getElementById('tab-text');
+      const tabPhoto = document.getElementById('tab-photo');
+      const photoSection = document.getElementById('photo-section');
+      const messageLabel = document.getElementById('message-label');
+
+      const activeClasses = ['bg-white', 'dark:bg-slate-900', 'text-telegram-600', 'dark:text-telegram-500', 'shadow-sm'];
+      const inactiveClasses = ['text-slate-600', 'dark:text-slate-400'];
+
+      if (mode === 'text') {
+        tabText.classList.add(...activeClasses);
+        tabText.classList.remove(...inactiveClasses);
+        tabPhoto.classList.remove(...activeClasses);
+        tabPhoto.classList.add(...inactiveClasses);
+        photoSection.classList.add('hidden');
+        messageLabel.textContent = 'Message Content (Required)';
+        messageText.placeholder = 'Enter your Telegram message here... Supports HTML tags like <b>bold</b>, <i>italic</i>, <a href="...">links</a>.';
+      } else {
+        tabPhoto.classList.add(...activeClasses);
+        tabPhoto.classList.remove(...inactiveClasses);
+        tabText.classList.remove(...activeClasses);
+        tabText.classList.add(...inactiveClasses);
+        photoSection.classList.remove('hidden');
+        messageLabel.textContent = 'Photo Caption (Optional, max 1024 chars)';
+        messageText.placeholder = 'Enter an optional caption for your image...';
+      }
+      updateCharCounter();
+    }
+
+    /**
+     * Updates character limit indicator based on Telegram API limits (4096 text / 1024 caption)
+     */
+    function updateCharCounter() {
+      const len = messageText.value.length;
+      const limit = currentMode === 'photo' ? 1024 : 4096;
+      charCounter.textContent = `${len} / ${limit}`;
+      if (len > limit) {
+        charCounter.classList.add('text-rose-500', 'font-bold');
+      } else {
+        charCounter.classList.remove('text-rose-500', 'font-bold');
+      }
+    }
+
+    /**
+     * Handles image file selection and renders preview thumbnail
+     */
+    function handlePhotoSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        return showToast('Please select a valid image file (JPG, PNG, WEBP, GIF).', 'error');
+      }
+
+      selectedPhotoFile = file;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        photoPreview.src = ev.target.result;
+        photoFilename.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        photoPlaceholder.classList.add('hidden');
+        photoPreviewWrapper.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    /**
+     * Clears selected image
+     */
+    function clearPhotoSelection() {
+      selectedPhotoFile = null;
+      photoInput.value = '';
+      photoPreview.src = '';
+      photoPreviewWrapper.classList.add('hidden');
+      photoPlaceholder.classList.remove('hidden');
+    }
+
+    /**
+     * Parses uploaded .xlsx, .xls, or .csv files using SheetJS (XLSX)
+     * Expects Column A = Bot Token, Column B = Chat ID (skips header row if detected)
+     */
+    function handleExcelUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+
+          // Convert sheet to 2D array (rows of columns)
+          const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+          const parsedTargets = [];
+          rows.forEach((row, index) => {
+            const colA = String(row[0] || '').trim();
+            const colB = String(row[1] || '').trim();
+
+            if (!colA || !colB) return;
+
+            // Automatically skip header rows like ["Bot Token", "Chat ID"]
+            if (index === 0 && (colA.toLowerCase().includes('token') || colB.toLowerCase().includes('chat'))) {
+              return;
+            }
+
+            parsedTargets.push({
+              id: `excel-${Date.now()}-${index}`,
+              token: colA,
+              chatId: colB,
+              status: 'pending',
+              errorMsg: ''
+            });
+          });
+
+          if (parsedTargets.length === 0) {
+            showToast('No valid rows found. Ensure Column A has Bot Tokens and Column B has Chat IDs.', 'error');
+            return;
+          }
+
+          targets = parsedTargets;
+          renderTable();
+          updateCounters();
+          appendLog(`Imported ${parsedTargets.length} rows from "${file.name}".`, 'success');
+          showToast(`Loaded ${parsedTargets.length} rows from ${file.name}!`, 'success');
+        } catch (err) {
+          console.error(err);
+          showToast('Failed to parse spreadsheet file: ' + err.message, 'error');
+        } finally {
+          e.target.value = ''; // allow re-uploading same file
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    /**
+     * Exports current target list to an Excel (.xlsx) file
+     */
+    function exportTargetsToExcel() {
+      if (targets.length === 0) {
+        return showToast('No rows available to export.', 'warning');
+      }
+      const aoa = targets.map(t => [t.token, t.chatId]);
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      ws['!cols'] = [{ wch: 50 }, { wch: 16 }];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'TelegramBots');
+      XLSX.writeFile(wb, 'telegram_bots_list.xlsx');
+      showToast('Exported telegram_bots_list.xlsx', 'success');
+    }
+
+    /**
+     * Renders the interactive recipient table
+     */
+    function renderTable() {
+      const query = searchInput.value.trim().toLowerCase();
+      const filtered = targets.filter(item =>
+        item.token.toLowerCase().includes(query) || item.chatId.toLowerCase().includes(query)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-10 text-center text-slate-400 font-sans text-xs">
+              No bot targets match your view. Upload an Excel/CSV file or click "Restore Preset".
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((row, idx) => {
+        const statusBadge = getStatusBadge(row.status, row.errorMsg);
+        return `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+            <td class="py-2.5 px-3 text-center text-slate-400 select-none">${idx + 1}</td>
+            <td class="py-2.5 px-3 max-w-[230px] sm:max-w-[300px] truncate text-slate-700 dark:text-slate-200" title="${escapeHtml(row.token)}">
+              ${escapeHtml(row.token)}
+            </td>
+            <td class="py-2.5 px-3 text-telegram-600 dark:text-telegram-500 font-medium">
+              ${escapeHtml(row.chatId)}
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              ${statusBadge}
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              <button type="button" onclick="deleteRow('${row.id}')" class="text-slate-400 hover:text-rose-500 p-1 rounded transition" title="Remove row">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    /**
+     * Returns HTML badge for row delivery status
+     */
+    function getStatusBadge(status, errorMsg) {
+      switch (status) {
+        case 'sending':
+          return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-sans font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400"><i class="fa-solid fa-spinner fa-spin"></i> Sending</span>`;
+        case 'sent':
+          return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-sans font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i class="fa-solid fa-check"></i> Sent</span>`;
+        case 'error':
+          return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-sans font-semibold bg-rose-500/15 text-rose-600 dark:text-rose-400 cursor-help" title="${escapeHtml(errorMsg)}"><i class="fa-solid fa-triangle-exclamation"></i> Failed</span>`;
+        case 'skipped':
+          return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-sans font-semibold bg-slate-500/15 text-slate-500">Skipped</span>`;
+        default:
+          return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-sans font-medium bg-slate-100 dark:bg-slate-800 text-slate-500">Pending</span>`;
+      }
+    }
+
+    /**
+     * Deletes a single row by ID
+     */
+    function deleteRow(id) {
+      if (isBroadcasting) return showToast('Cannot delete rows while broadcasting.', 'warning');
+      targets = targets.filter(t => t.id !== id);
+      renderTable();
+      updateCounters();
+    }
+
+    /**
+     * Updates top badge and stat counters
+     */
+    function updateCounters() {
+      const total = targets.length;
+      const sent = targets.filter(t => t.status === 'sent').length;
+      const failed = targets.filter(t => t.status === 'error').length;
+
+      document.getElementById('badge-count').textContent = total;
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-success').textContent = sent;
+      document.getElementById('stat-failed').textContent = failed;
+    }
+
+    /**
+     * Main Broadcast Loop: iterates through each row and calls Telegram Bot API
+     */
+    async function startBroadcast() {
+      if (isBroadcasting) return;
+
+      if (targets.length === 0) {
+        return showToast('Please load at least one Bot Token & Chat ID row.', 'error');
+      }
+
+      const textVal = messageText.value.trim();
+      const parseMode = document.getElementById('parse-mode').value;
+      const delayMs = Math.max(0, parseInt(document.getElementById('delay-ms').value, 10) || 0);
+      const skipDuplicates = document.getElementById('dedupe-toggle').checked;
+
+      // Validate payload
+      if (currentMode === 'text' && !textVal) {
+        return showToast('Please enter a text message to send.', 'error');
+      }
+      if (currentMode === 'photo' && !selectedPhotoFile) {
+        return showToast('Please select an image file to upload.', 'error');
+      }
+
+      // Reset row statuses
+      targets.forEach(t => {
+        t.status = 'pending';
+        t.errorMsg = '';
+      });
+      renderTable();
+      updateCounters();
+      progressBar.style.width = '0%';
+
+      // Lock UI controls
+      isBroadcasting = true;
+      abortRequested = false;
+      document.getElementById('start-btn').disabled = true;
+      document.getElementById('start-btn-text').textContent = 'Broadcasting...';
+      document.getElementById('stop-btn').disabled = false;
+
+      appendLog(`Starting ${currentMode.toUpperCase()} broadcast to ${targets.length} rows (delay: ${delayMs}ms)...`, 'info');
+
+      const seenPairs = new Set();
+
+      for (let i = 0; i < targets.length; i++) {
+        if (abortRequested) {
+          appendLog('Broadcast stopped early by user.', 'warn');
+          break;
+        }
+
+        const row = targets[i];
+        const pairKey = `${row.token}::${row.chatId}`;
+
+        // Duplicate Check
+        if (skipDuplicates && seenPairs.has(pairKey)) {
+          row.status = 'skipped';
+          appendLog(`Row #${i + 1} (${row.chatId}): Skipped duplicate pair.`, 'warn');
+          renderTable();
+          updateProgress(i + 1, targets.length);
+          continue;
+        }
+        seenPairs.add(pairKey);
+
+        // Update row status to sending
+        row.status = 'sending';
+        renderTable();
+
+        try {
+          await sendTelegramPayload(row.token, row.chatId, textVal, parseMode);
+          row.status = 'sent';
+          appendLog(`Row #${i + 1} → Chat ${row.chatId}: Delivered successfully.`, 'success');
+        } catch (err) {
+          row.status = 'error';
+          row.errorMsg = err.message || 'Unknown Telegram API error';
+          appendLog(`Row #${i + 1} → Chat ${row.chatId}: Failed (${row.errorMsg})`, 'error');
+        }
+
+        renderTable();
+        updateCounters();
+        updateProgress(i + 1, targets.length);
+
+        // Respect rate-limiting delay before next request
+        if (i < targets.length - 1 && delayMs > 0 && !abortRequested) {
+          await sleep(delayMs);
+        }
+      }
+
+      // Unlock UI controls
+      isBroadcasting = false;
+      document.getElementById('start-btn').disabled = false;
+      document.getElementById('start-btn-text').textContent = 'Send Broadcast';
+      document.getElementById('stop-btn').disabled = true;
+
+      const finalSent = targets.filter(t => t.status === 'sent').length;
+      const finalFailed = targets.filter(t => t.status === 'error').length;
+      appendLog(`Broadcast finished. Sent: ${finalSent}, Failed: ${finalFailed}.`, 'info');
+      showToast(`Finished! Sent: ${finalSent} | Failed: ${finalFailed}`, finalFailed === 0 ? 'success' : 'warning');
+    }
+
+    /**
+     * Executes direct HTTP POST request to Telegram Bot API (`sendMessage` or `sendPhoto`)
+     */
+    async function sendTelegramPayload(botToken, chatId, text, parseMode) {
+      const baseUrl = `https://api.telegram.org/bot${encodeURIComponent(botToken)}`;
+
+      if (currentMode === 'text') {
+        const payload = {
+          chat_id: chatId,
+          text: text
+        };
+        if (parseMode) payload.parse_mode = parseMode;
+
+        const response = await fetch(`${baseUrl}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data.description || `HTTP ${response.status}`);
+        }
+        return data;
+      } else {
+        // Photo mode via multipart/form-data
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        formData.append('photo', selectedPhotoFile);
+        if (text) {
+          formData.append('caption', text);
+          if (parseMode) formData.append('parse_mode', parseMode);
+        }
+
+        const response = await fetch(`${baseUrl}/sendPhoto`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data.description || `HTTP ${response.status}`);
+        }
+        return data;
+      }
+    }
+
+    /**
+     * Helper: updates visual progress bar width
+     */
+    function updateProgress(completed, total) {
+      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+      progressBar.style.width = `${pct}%`;
+    }
+
+    /**
+     * Helper: appends timestamped entry to delivery log terminal
+     */
+    function appendLog(message, type = 'info') {
+      const time = new Date().toLocaleTimeString([], { hour12: false });
+      const colorMap = {
+        info: 'text-sky-400',
+        success: 'text-emerald-400',
+        warn: 'text-amber-400',
+        error: 'text-rose-400'
+      };
+      const div = document.createElement('div');
+      div.className = colorMap[type] || 'text-slate-300';
+      div.textContent = `[${time}] ${message}`;
+      logOutput.appendChild(div);
+      logOutput.scrollTop = logOutput.scrollHeight;
+    }
+
+    /**
+     * Helper: non-blocking toast notification banner
+     */
+    function showToast(msg, variant = 'info') {
+      const container = document.getElementById('toast-container');
+      const styles = {
+        success: 'bg-emerald-600 text-white border-emerald-500',
+        error: 'bg-rose-600 text-white border-rose-500',
+        warning: 'bg-amber-600 text-white border-amber-500',
+        info: 'bg-slate-800 text-white border-slate-700'
+      };
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg border text-xs font-medium flex items-center justify-between gap-3 transition-all duration-300 ${styles[variant] || styles.info}`;
+      toast.innerHTML = `<span>${escapeHtml(msg)}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-6px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    /**
+     * Helper: Promise-based delay
+     */
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    /**
+     * Helper: Escapes HTML special characters for safe rendering
+     */
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
 </html>
